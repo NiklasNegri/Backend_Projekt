@@ -2,7 +2,10 @@ import React from 'react';
 
 function Home() {
     return (
-        <h1>this is the homepage</h1>
+        <div>
+            <h1>Schemabokning</h1>
+            <h2>Registera ny användare eller logga in för att boka!</h2>
+        </div>
     );
 }
 

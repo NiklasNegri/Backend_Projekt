@@ -4,7 +4,8 @@ function Profile() {
 
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
-    const userToken = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    const parsedUser = JSON.parse(user);
 
     useEffect(() => {
         getUserProfile();
@@ -15,17 +16,19 @@ function Profile() {
             <h1>User Profile</h1>
             <h2>User Email: {email}</h2>
             <h2>User Phone: {phone}</h2>
+
+            /* lägg till knapp för att ändra sina uppgifter*/
         </div>
     );
 
+         // nödvändigt för att få fram password då det ej returneras i authenticate
+         // för extra säkerhet då denna fetch kräver JWT token som hämtas från första
+         
     async function getUserProfile() {
 
         const requestOptions = {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': userToken
-            },
+            headers: { 'Content-Type': 'application/json', 'Authorization': parsedUser.token },
             mode: 'cors'
         };
 

@@ -42,14 +42,9 @@ export default function Login() {
 
         let response = await fetch('http://localhost:4000/users/authenticate', requestOptions);
         const data = await response.json();
-        /* .then(response => response.json())
-        .then(data => setToken(data.token))
-        .then(response => setUser(response.data))
-        .then(localStorage.setItem("token", token)) */
-        localStorage.setItem("token", data.token);
-        console.log(data.token);
-        navigate("/profile");
+        localStorage.setItem("user", JSON.stringify(data));
 
+        navigate("/profile");
         window.location.reload();
     }
 }

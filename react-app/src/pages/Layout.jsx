@@ -4,9 +4,9 @@ import NavbarLoggedIn from "./NavbarLoggedIn";
 import NavbarLoggedOut from "./NavbarLoggedOut";
 
 const Layout = () => {
-  const userToken = localStorage.getItem("token");
+  const user = localStorage.getItem("user");
 
-  if (!userToken) {
+  if (!user) {
     return (
       <>
         <NavbarLoggedOut />
@@ -16,13 +16,13 @@ const Layout = () => {
   }
 
   else {
-      return (
-        <>
-          <NavbarLoggedIn />
-          <Outlet />
-        </>
-      );
+    return (
+      <>
+        <NavbarLoggedIn />
+        <Outlet />
+      </>
+    );
   }
 }
 
-  export default Layout;
+export default Layout;

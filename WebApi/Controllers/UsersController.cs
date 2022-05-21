@@ -50,6 +50,20 @@ namespace WebApi.Controllers
             return Ok(new { message = "Booking successfully registered!" });
         }
 
+        [HttpGet("rooms")]
+        public IActionResult GetRoomIds()
+        {
+            var roomIds = _userService.GetRoomIds();
+            return Ok(roomIds);
+        }
+
+        [HttpGet("workers")]
+        public IActionResult GetWorkerIds()
+        {
+            var workerIds = _userService.GetWorkerIds();
+            return Ok(workerIds);
+        }
+
         [HttpGet("booking")]
         public IActionResult GetUserBookings()
         {
