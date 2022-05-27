@@ -15,14 +15,12 @@ const Layout = () => {
     );
   }
 
-  else {
-    return (
-      <>
-        <NavbarLoggedIn />
-        <Outlet />
-      </>
-    );
-  }
+  return (
+    <>
+      <NavbarLoggedIn />
+      <Outlet />
+    </>
+  );
 }
 
 export default Layout;

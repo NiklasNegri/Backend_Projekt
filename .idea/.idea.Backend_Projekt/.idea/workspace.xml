@@ -5,11 +5,7 @@
     <projectFile profileName="IIS Express">Backend_Projekt/Backend_Projekt.csproj</projectFile>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5fbbe876-b0b5-4542-99e0-3ad01c5a6c0b" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/WebApi/obj/Debug/net6.0/WebApi.GeneratedMSBuildEditorConfig.editorconfig" beforeDir="false" afterPath="$PROJECT_DIR$/WebApi/obj/Debug/net6.0/WebApi.GeneratedMSBuildEditorConfig.editorconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebApi/obj/Debug/net6.0/WebApi.assets.cache" beforeDir="false" afterPath="$PROJECT_DIR$/WebApi/obj/Debug/net6.0/WebApi.assets.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebApi/obj/Debug/net6.0/WebApi.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/WebApi/obj/Debug/net6.0/WebApi.csproj.AssemblyReference.cache" afterDir="false" />
-    </list>
+    <list default="true" id="5fbbe876-b0b5-4542-99e0-3ad01c5a6c0b" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -27,7 +23,6 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$USER_HOME$/AppData/Local/JetBrains/Shared/vAny/SourcesCache/bbdeabf08952bddf26ccbd6a8bd7fc4f88b647ac8d3e66aacb776f7da57c3/SingleQueryingEnumerable.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/Documents/THS-Backend/Backend_App/WebApi/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/user/RiderProjects/Backend_Projekt/WebApi/Controllers/AdminsController.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -41,16 +36,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "vcs.Git",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected=".NET Launch Settings Profile.Backend_Projekt">
     <configuration name="Backend_Projekt" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/WebApi/WebApi.csproj" />
@@ -105,6 +100,14 @@
       <workItem from="1653119035897" duration="594000" />
       <workItem from="1653121007631" duration="2267000" />
       <workItem from="1653141591862" duration="2621000" />
+      <workItem from="1653558833409" duration="1758000" />
+      <workItem from="1653588100627" duration="2000" />
+      <workItem from="1653588129920" duration="33000" />
+      <workItem from="1653588643342" duration="101000" />
+      <workItem from="1653588759471" duration="46000" />
+      <workItem from="1653588935213" duration="68000" />
+      <workItem from="1653589894690" duration="307000" />
+      <workItem from="1653641132741" duration="52000" />
     </task>
     <task id="LOCAL-00001" summary="reupload">
       <created>1652292277807</created>

@@ -33,12 +33,19 @@ namespace WebApi.Controllers
             _userService.RegisterCustomer(model);
             return Ok(new { message = "User successfully registered!" });
         }
+
+        [HttpPatch("update")]
+        public IActionResult UpdateUser(UpdateUser model)
+        {
+            _userService.UpdateUser(model);
+            return Ok(new { message = "User updated!"});
+        }
         
         [Authorize(Role.Customer)]
-        [HttpDelete]
-        public IActionResult DeleteUser()
+        [HttpDelete("{id}")]
+        public IActionResult DeleteUser(int id)
         {
-            _userService.DeleteUser(GetAuthenticatedUser().Id);
+            _userService.DeleteUser(id, GetAuthenticatedUser().Id);
             return Ok(new { message = "User deleted" });
         }
         
@@ -46,22 +53,22 @@ namespace WebApi.Controllers
         [HttpPost("booking")]
         public IActionResult CreateBooking(RegisterBooking model)
         {
-            _userService.CreateBooking(model, GetAuthenticatedUser().Id);
+            _userService.CreateBooking(model);
             return Ok(new { message = "Booking successfully registered!" });
         }
 
         [HttpGet("rooms")]
-        public IActionResult GetRoomIds()
+        public IActionResult GetRooms()
         {
-            var roomIds = _userService.GetRoomIds();
-            return Ok(roomIds);
+            var rooms = _userService.GetRooms();
+            return Ok(rooms);
         }
 
         [HttpGet("workers")]
-        public IActionResult GetWorkerIds()
+        public IActionResult GetWorkers()
         {
-            var workerIds = _userService.GetWorkerIds();
-            return Ok(workerIds);
+            var workers = _userService.GetWorkers();
+            return Ok(workers);
         }
 
         [HttpGet("booking")]
@@ -85,6 +92,7 @@ namespace WebApi.Controllers
             var user = _userService.GetById(GetAuthenticatedUser().Id);
             return Ok(user);
         }
+
         private User GetAuthenticatedUser()
         {
             return (User)HttpContext.Items["User"];

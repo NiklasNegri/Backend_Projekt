@@ -9,10 +9,15 @@ namespace WebApi.Models.Users
         [EmailAddress]
         public string Email { get; set; }
         [Required]
+        public string? Firstname { get; set; }
+        [Required]
+        public string? Lastname { get; set; }
+        [Required]
         public string Password { get; set; }
         [Required]
         [Phone]
         public string Phone { get; set; }
+        [Required]
         public Role Role { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 function Register() {
+
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
@@ -54,11 +55,6 @@ function Register() {
         else {
             setMessage("Error!")
         }
-
-        console.log(data);
-        /* navigate("/profile"); */
-
-        /*  window.location.reload(); */
     }
 }
 

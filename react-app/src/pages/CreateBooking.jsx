@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
+import DatePicker from "react-datepicker";
 
-function Booking() {
+import "react-datepicker/dist/react-datepicker.css";
 
-    const [allWorkerIds, setAllWorkerIds] = useState([]);
-    const [allRoomIds, setAllRoomIds] = useState([]);
+function CreateBooking() {
+
+    const [allWorkers, setAllWorkers] = useState([]);
+    const [allRooms, setAllRooms] = useState([]);
 
     const [roomId, setRoomId] = useState("");
     const [workerId, setWorkerId] = useState("");
-    const [startTime, setStartTime] = useState("");
-    const [endTime, setEndTime] = useState("");
+    const [startTime, setStartTime] = useState(new Date());
     const [duration, setDuration] = useState("");
 
     const user = localStorage.getItem("user");
@@ -25,42 +27,40 @@ function Booking() {
             <h1>Create Booking</h1>
             <form onSubmit={createUserBooking}>
 
-                <label>Select a room</label>
-                <select onChange={(e) => setRoomId(e.target.value)}>
-                    <option />
-                    {allRoomIds.map((roomId) =>
-                        <option key={roomId} value={roomId}>{roomId}</option>)}
-                </select>
-
-                <label>Select a worker</label>
-                <select onChange={(e) => setWorkerId(e.target.value)}>
-                    <option />
-                    {allWorkerIds.map((workerId) =>
-                        <option key={workerId} value={workerId}>{workerId}</option>)}
-                </select>
-
                 <input
-                    value={startTime}
-                    placeholder="Enter start time"
-                    onChange={(e) => setStartTime(e.target.value)}
+                    value={roomId}
+                    placeholder="Enter room id"
+                    onChange={(e) => setRoomId(e.target.value)}
                 />
 
                 <input
-                    value={endTime}
-                    placeholder="Enter end time"
-                    onChange={(e) => setEndTime(e.target.value)}
+                    value={workerId}
+                    placeholder="Enter worker id"
+                    onChange={(e) => setWorkerId(e.target.value)}
+                />
+
+                <DatePicker
+                    selected={startTime}
+                    onChange={setStartTime}
+                    showTimeSelect
+                    dateFormat="Pp"
                 />
 
                 <input
                     value={duration}
-                    placeholder="Enter duration"
+                    placeholder="Enter duration in minutes"
                     onChange={(e) => setDuration(e.target.value)}
                 />
-
                 <button type="submit"></button>
 
                 <div className="message">{message ? <p>{message}</p> : null}</div>
             </form>
+            <div>
+                {allRooms}
+            </div>
+            <div>
+                {allWorkers}
+            </div>
         </div>
     );
 
@@ -72,10 +72,10 @@ function Booking() {
             headers: { 'Content-Type': 'application/json', 'Authorization': parsedUser.token },
             mode: 'cors',
             body: JSON.stringify({
+                customerId: parsedUser.id,
                 roomId: roomId,
                 workerId: workerId,
                 startTime: startTime,
-                endTime: endTime,
                 duration: duration,
             })
         };
@@ -102,9 +102,28 @@ function Booking() {
         const workersResponse = await fetch("http://localhost:4000/users/workers/", requestOptions);
         const workersData = await workersResponse.json();
 
-        setAllRoomIds(roomsData);
-        setAllWorkerIds(workersData);
+        setAllRooms(roomsData.map((room) =>
+            <li key={room.id}>
+                <div onClick={() => chooseRoom(room.id)}>Room name: {room.roomName}</div>
+                <div>Room type: {room.roomType}</div>
+            </li>));
+
+        setAllWorkers(workersData.map((worker) =>
+            <li key={worker.id}>
+                <div onClick={() => chooseWorker(worker.id)}>Worker email: {worker.email}</div>
+                <div>Name: {worker.firstname} {worker.lastname} </div>
+            </li>));
+    }
+
+    function chooseRoom(room) {
+        setRoomId(room);
+        setAllRooms(null);
+    }
+
+    function chooseWorker(worker) {
+        setWorkerId(worker);
+        setAllWorkers(null);
     }
 }
 
-export default Booking;
+export default CreateBooking;

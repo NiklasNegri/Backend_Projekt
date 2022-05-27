@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
+import { Container, Form, Button, Col, Row } from 'react-bootstrap';
 
 export default function Login() {
 
@@ -8,23 +9,31 @@ export default function Login() {
     const [password, setPassword] = useState("");
 
     return (
-        <div className="authenticatePage">
-            <form onSubmit={authenticate}>
-                <input
-                    value={email}
-                    placeholder="Enter email"
-                    onChange={(e) => setEmail(e.target.value)}
-                />
+        <Container>
+            <Form onSubmit={authenticate}>
+                <Row className="align-items-center">
+                    <Col xs="auto">
+                        <Form.Label>Email address</Form.Label>
+                        <Form.Group className="mb-3" controlId="formEmail">
+                            <Form.Control value={email} type="email" placeholder="Enter email" onChange={(e) => setEmail(e.target.value)} />
+                        </Form.Group>
+                    </Col>
+                    <Col xs="auto">
+                        <Form.Group className="mb-3" controlId="formPassword">
+                            <Form.Label>Password</Form.Label>
+                            <Form.Control value={password} type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
+                        </Form.Group>
+                    </Col>
+                    <Col xs="auto">
 
-                <input
-                    value={password}
-                    type="password"
-                    placeholder="Enter password"
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <button type="submit">Login</button>
-            </form>
-        </div>
+                        <Button variant="primary" type="submit">
+                            Submit
+                        </Button>
+                    </Col>
+
+                </Row>
+            </Form>
+        </Container>
     );
 
     async function authenticate(e) {

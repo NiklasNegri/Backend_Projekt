@@ -12,13 +12,14 @@ namespace WebApi.Services
         AuthenticateResponse Authenticate(AuthenticateRequest model);
         void RegisterCustomer(RegisterUser model);
         User GetById(int id);
-        void DeleteUser(int id);
-        void CreateBooking(RegisterBooking model, int id);
-        Array GetRoomIds();
-        Array GetWorkerIds();
+        void DeleteUser(int id, int userId);
+        void UpdateUser(UpdateUser model);
+        void CreateBooking(RegisterBooking model);
         IEnumerable<Booking> GetUserBookings(int id);
         Booking GetBookingById(int id);
         void DeleteBooking(Booking booking, int id);
+        IEnumerable<Room> GetRooms();
+        IEnumerable<User> GetWorkers();
     }
 
     public class UserService : IUserService
@@ -40,12 +41,6 @@ namespace WebApi.Services
         public AuthenticateResponse Authenticate(AuthenticateRequest model)
         {
             var user = _context.Users.SingleOrDefault(x => x.Email == model.Email);
-
-            if (user == null)
-                throw new AppException("User with that email does not exist!");
-
-            if (!BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
-                throw new AppException("Wrong password entered!");
 
             // authentication successful so generate jwt token
             var response = _mapper.Map<AuthenticateResponse>(user);
@@ -74,21 +69,51 @@ namespace WebApi.Services
             return GetUser(id);
         }
 
-        public void DeleteUser(int id)
+        public void DeleteUser(int id, int userId)
         {
+            if (id != userId)
+                throw new AppException("Cannot delete another user!");
             var user = GetUser(id);
             _context.Users.Remove(user);
             _context.SaveChanges();
         }
 
-        public void CreateBooking(RegisterBooking model, int id)
+        public void UpdateUser(UpdateUser model)
+        {
+            var user = GetUser(model.Id);
+
+            if (model.Email == null)
+                model.Email = user.Email;
+
+            if (model.Firstname == null)
+                model.Firstname = user.Firstname;
+
+            if (model.Lastname == null)
+                model.Lastname = user.Lastname;
+
+            if (model.Phone == null)
+                model.Phone = user.Phone;
+
+            if (model.Password == null) {
+                model.Password = user.PasswordHash;
+            }
+            else {
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
+            }
+
+            _mapper.Map(model, user);
+            _context.Users.Update(user);
+            _context.SaveChanges();
+        }
+
+        public void CreateBooking(RegisterBooking model)
         {
             var worker = _context.Users.FirstOrDefault(x => x.Id == model.WorkerId);
             if (worker == null || worker.Role != Role.Worker)
                 throw new AppException("Cannot find a worker with this id");
 
-            var customer = _context.Users.FirstOrDefault(x => x.Id == id);
-            if (customer == null || customer.Role != Role.Customer && customer.Id != id)
+            var customer = _context.Users.FirstOrDefault(x => x.Id == model.CustomerId);
+            if (customer == null || customer.Role != Role.Customer && customer.Id != model.CustomerId)
                 throw new AppException("Cannot find a customer with this id");
 
             var room = _context.Rooms.FirstOrDefault(x => x.Id == model.RoomId);
@@ -101,7 +126,7 @@ namespace WebApi.Services
                 throw new AppException("Worker is already scheduled to work at that time!");
 
             var customerBooked = _context.Bookings.FirstOrDefault(
-                x => (x.StartTime == DateTime.Parse(model.StartTime) && x.CustomerId == id));
+                x => (x.StartTime == DateTime.Parse(model.StartTime) && x.CustomerId == model.CustomerId));
             if (customerBooked != null)
                 throw new AppException("Customer is already booked at that time!");
 
@@ -111,23 +136,13 @@ namespace WebApi.Services
                 throw new AppException("Room is already booked at that time!");
 
             var booking = _mapper.Map<Booking>(model);
+            booking.RoomName = room.RoomName;
+            booking.WorkerName = worker.Firstname + ' ' + worker.Lastname;
             booking.StartTime = DateTime.Parse(model.StartTime);
-            booking.EndTime = DateTime.Parse(model.EndTime).AddMinutes(Convert.ToDouble(model.Duration));
-            booking.CustomerId = id;
+            booking.EndTime = DateTime.Parse(model.StartTime).AddMinutes(Convert.ToDouble(model.Duration));
 
             _context.Bookings.Add(booking);
             _context.SaveChanges();
-        }
-
-        public Array GetRoomIds()
-        {
-            return _context.Rooms.Select(x => x.Id).ToArray();
-        }
-
-        public Array GetWorkerIds()
-        {
-            var workers = _context.Users.Where(x => (int)x.Role == 2);
-            return workers.Select(x => x.Id).ToArray();
         }
 
         public Booking GetBookingById(int id)
@@ -152,6 +167,17 @@ namespace WebApi.Services
                 throw new KeyNotFoundException("No bookings found!");
             _context.Bookings.Remove(booking);
             _context.SaveChanges();
+        }
+
+        public IEnumerable<Room> GetRooms()
+        {
+            return _context.Rooms;
+        }
+
+        public IEnumerable<User> GetWorkers()
+        {
+            var workers = _context.Users.Where(x => (int)x.Role == 2);
+            return workers;
         }
 
         private User GetUser(int id)

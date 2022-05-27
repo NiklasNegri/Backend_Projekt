@@ -13,6 +13,9 @@ namespace WebApi.Helpers
             //registeruser -> user
             CreateMap<RegisterUser, User>();
 
+            //updateuser -> user
+            CreateMap<UpdateUser, User>();
+
             //registeroom -> room
             CreateMap<RegisterRoom, Room>();
 

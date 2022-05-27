@@ -19,7 +19,7 @@ namespace WebApi.Controllers
         {
             _adminService = adminService;
         }
-        
+
         [HttpPost("register")]
         public IActionResult RegisterAdminUser(RegisterUser model)
         {
@@ -61,18 +61,32 @@ namespace WebApi.Controllers
             _adminService.RegisterRoom(model);
             return Ok(new { message = "User successfully registered!" });
         }
-        
+
         [HttpGet("rooms/get")]
         public IActionResult GetRooms()
         {
             return Ok(_adminService.GetRooms());
         }
 
-        [HttpDelete("rooms/delete")]
+        [HttpDelete("rooms/{id}")]
         public IActionResult DeleteRoom(int id)
         {
             _adminService.DeleteRoom(id);
             return Ok(new { message = "Room deleted" });
+        }
+
+        [HttpGet("bookings")]
+        public IActionResult GetAllBookings()
+        {
+            var bookings = _adminService.GetAllBookings();
+            return Ok(bookings);
+        }
+
+        [HttpDelete("bookings/{id}")]
+        public IActionResult DeleteBooking(int id)
+        {
+            _adminService.DeleteBooking(id);
+            return Ok(new { message = "Booking deleted!" });
         }
     }
 }
