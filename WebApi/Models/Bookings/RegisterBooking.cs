@@ -6,7 +6,7 @@ namespace WebApi.Models.Bookings;
 public class RegisterBooking
 {
     [Required]
-    public int CustomerId { get; set; }
+    public int UserId { get; set; }
 
     [Required]
     public string StartTime { get; set; }

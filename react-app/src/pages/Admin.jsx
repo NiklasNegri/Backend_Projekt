@@ -1,189 +1,387 @@
-import React, { useEffect, useState } from "react";
-import { findDOMNode } from "react-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button, Table, Form, Modal, Container, Col, Row } from "react-bootstrap";
 
 function Admin() {
-    const authuser = localStorage.getItem("user");
-    const parsedUser = JSON.parse(authuser);
+    const user = localStorage.getItem("user");
+    const parsedUser = JSON.parse(user);
 
-    const [id, setId] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
+    const [role, setRole] = useState();
     const [password, setPassword] = useState("");
-    const [role, setRole] = useState("");
+    const [workExperience, setWorkExperience] = useState("");
+    const [emailError, setEmailError] = useState("");
+    const [phoneError, setPhoneError] = useState("");
 
     const [userList, setUserList] = useState([]);
+    const [updateUserId, setUpdateUserId] = useState("");
 
+    const [newEmailError, setNewEmailError] = useState("");
+    const [newPhoneError, setNewPhoneError] = useState("");
     const [newEmail, setNewEmail] = useState("");
     const [newPhone, setNewPhone] = useState("");
+    const [newFirstName, setNewFirstName] = useState("");
+    const [newLastName, setNewLastName] = useState("");
     const [newPassword, setNewPassword] = useState("");
-    const [newRole, setNewRole] = useState("");
+    const [newRole, setNewRole] = useState();
+    const [newWorkExperience, setNewWorkExperience] = useState("");
+    const [show, setShow] = useState(false);
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
 
     const [roomList, setRoomList] = useState([]);
     const [roomName, setRoomName] = useState("");
-    const [roomType, setRoomType] = useState("");
+    const [roomType, setRoomType] = useState("Spa");
+    const [roomError, setRoomError] = useState("");
+    const [description, setDescription] = useState("");
 
     const [bookingList, setBookingList] = useState([]);
 
     return (
         <div>
-            <h1>User control</h1>
-            <div>
-                <button onClick={getUsers}>Get All Users</button>
-            </div>
-            <div>
-                <label>Register new user</label>
-                <form onSubmit={registerUser}>
-                    <input
-                        value={email}
-                        placeholder="Enter email"
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                    <input
-                        value={firstName}
-                        placeholder="Enter firstname"
-                        onChange={(e) => setFirstName(e.target.value)}
-                    />
-                    <input
-                        value={lastName}
-                        placeholder="Enter lastname"
-                        onChange={(e) => setLastName(e.target.value)}
-                    />
-                    <input
-                        value={password}
-                        placeholder="Enter password"
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <input
-                        value={phone}
-                        placeholder="Enter phone number"
-                        onChange={(e) => setPhone(e.target.value)}
-                    />
-                    <select
-                        value={role}
-                        onChange={(e) => setRole(e.target.value)}
-                    >
-                        <option value="Admin">Admin</option>
-                        <option value="Customer">Customer</option>
-                        <option value="Worker">Worker</option>
-                    </select>
-                    <button type="submit">Register</button>
-                </form>
-            </div>
-            <div>
-                <label>Update User</label>
-                <form onSubmit={updateUser}>
-                    <input
-                        value={id}
-                        placeholder="Enter user id"
-                        onChange={(e) => setId(e.target.value)}
-                    />
-                    <input
-                        value={newEmail}
-                        placeholder="Enter new email"
-                        onChange={(e) => setNewEmail(e.target.value)}
-                    />
-                    <input
-                        value={newPassword}
-                        placeholder="Enter new password"
-                        onChange={(e) => setNewPassword(e.target.value)}
-                    />
-                    <input
-                        value={newPhone}
-                        placeholder="Enter new phone number"
-                        onChange={(e) => setNewPhone(e.target.value)}
-                    />
-                    <select
-                        value={newRole}
-                        onChange={(e) => setNewRole(e.target.value)}
-                    >
-                        <option value="Admin">Admin</option>
-                        <option value="Customer">Customer</option>
-                        <option value="Worker">Worker</option>
-                    </select>
-                    <button type="submit">Update</button>
-                </form>
-            </div>
-            <h1>Bookings control</h1>
-            <div>
-                <button onClick={getBookings}>Show All Bookings</button>
-                {bookingList}
-            </div>
-            <h1>Rooms control</h1>
-            <div>
-                <label>Register Room</label>
-                <form onSubmit={registerRoom}>
-                    <input
-                        value={roomName}
-                        placeholder="Enter room name"
-                        onChange={(e) => setRoomName(e.target.value)}
-                    />
-                    <select
-                        value={roomType}
-                        onChange={(e) => setRoomType(e.target.value)}
-                    >
-                        <option value="Spa">Spa</option>
-                        <option value="MassageRoom">Massage Room</option>
-                        <option value="HairSalon">Hair Salon</option>
-                    </select>
-                    <button type="submit">Register</button>
-                </form>
-            </div>
-            <div>
-                <button onClick={getRooms}>Show All Rooms</button>
-                {roomList}
-            </div>
+            <Container>
+                <Row className="justify-content-md-center">
+                <Col md="auto">
+            <h1>Admin Control</h1>
+                <h2>User control</h2>
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Email</th>
+                            <th>Firstname</th>
+                            <th>Lastname</th>
+                            <th>Phone</th>
+                            <th>Role</th>
+                            <th>Work Experience</th>
+                            <th>Edit</th>
+                        </tr>
+                    </thead>
+                    {userList}
+                </Table>
+
+                <div>
+                    <Button variant="primary" onClick={getUsers}>Get All Users</Button>
+                    <Modal show={show} onHide={handleClose}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Edit profile</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <Form>
+                                <Form.Group className="mb-3" controlId="newEmail">
+                                    <Form.Label>New Email address</Form.Label>
+                                    <Form.Control
+                                        type="email"
+                                        value={newEmail}
+                                        onChange={(e) => setNewEmail(e.target.value)}
+                                    />
+                                    {newEmailError}
+                                </Form.Group>
+
+                                <Form.Group className="mb-3" controlId="newFirstname">
+                                    <Form.Label>New Firstname</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={newFirstName}
+                                        onChange={(e) => setNewFirstName(e.target.value)}
+                                    />
+
+                                </Form.Group><Form.Group className="mb-3" controlId="newLastname">
+                                    <Form.Label>New Lastname</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={newLastName}
+                                        onChange={(e) => setNewLastName(e.target.value)}
+                                    />
+
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="newPhone">
+                                    <Form.Label>New Phone</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={newPhone}
+                                        onChange={(e) => setNewPhone(e.target.value)}
+                                    />
+                                    {newPhoneError}
+                                </Form.Group>
+
+                                <Form.Group className="mb-3" controlId="newRole">
+                                    <Form.Label>New Role</Form.Label>
+                                    <Form.Select
+                                        value={newRole}
+                                        onChange={(e) => setNewRole(e.target.value)}
+                                    >
+                                        <option value="Admin">Admin</option>
+                                        <option value="Customer">Customer</option>
+                                        <option value="Worker">Worker</option>
+                                    </Form.Select>
+                                </Form.Group>
+
+                                <Form.Group className="mb-3" controlId="newWE">
+                                    <Form.Label>New Work Experience</Form.Label>
+                                    <Form.Control
+                                        value={newWorkExperience}
+                                        onChange={(newWE) => setNewWorkExperience(newWE)}
+                                    >
+                                    </Form.Control>
+                                </Form.Group>
+
+                                <Form.Group className="mb-3" controlId="newPassword">
+                                    <Form.Label>New Password</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                    />
+                                </Form.Group>
+                            </Form>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={handleClose}>
+                                Close
+                            </Button>
+                            <Button variant="primary" onClick={updateUser}>
+                                Save Changes
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
+                </div>
+
+                <div className="justify-items-center">
+                    <label>Register new user</label>                    
+                        <Form onSubmit={registerUser}>
+                            <Form.Group className="mb-3" controlId="newEmail">
+                                <Form.Label>Email address</Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    value={email}
+                                    required
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                                {emailError}
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" controlId="newFirstname">
+                                <Form.Label>Firstname</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={firstName}
+                                    required
+                                    onChange={(e) => setFirstName(e.target.value)}
+                                />
+
+                            </Form.Group><Form.Group className="mb-3" controlId="newLastname">
+                                <Form.Label>Lastname</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={lastName}
+                                    required
+                                    onChange={(e) => setLastName(e.target.value)}
+                                />
+
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="newPhone">
+                                <Form.Label>Phone</Form.Label>
+                                <Form.Control
+                                    type="phone"
+                                    value={phone}
+                                    required
+                                    onChange={(e) => setPhone(e.target.value)}
+                                />
+                                {phoneError}
+                            </Form.Group>
+
+                            <Form.Group>
+                                <Form.Label>Role</Form.Label>
+                                <Form.Control as="select"
+                                    value={role}
+                                    onChange={(e) => setRole(e.target.value)}
+                                >
+                                    <option value="Admin">Admin</option>
+                                    <option value="Customer">Customer</option>
+                                    <option value="Worker">Worker</option>
+                                </Form.Control>
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" controlId="wE">
+                                    <Form.Label>Work Experience</Form.Label>
+                                    <Form.Control
+                                        value={workExperience}
+                                        onChange={(e) => setWorkExperience(e.target.value)}
+                                    >
+                                    </Form.Control>
+                                </Form.Group>
+
+                            <Form.Group className="mb-3" controlId="newPassword">
+                                <Form.Label>Password</Form.Label>
+                                <Form.Control
+                                    type="password"
+                                    value={password}
+                                    required
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Button variant="primary" type="submit">
+                                Register
+                            </Button>
+                        </Form>
+                </div>
+                <h2>Bookings control</h2>
+                <div>
+                    <Table responsive>
+                        <thead>
+                            <tr>
+                            <th>Customer Id</th>
+                                <th>Room name</th>
+                                <th>Worker</th>
+                                <th>Start time</th>
+                                <th>End time</th>
+                            </tr>
+                        </thead>
+                        {bookingList}
+                    </Table>
+                    <Button onClick={getBookings}>Show All Bookings</Button>
+                </div>
+                <h2>Rooms control</h2>
+                <div>
+                    <Form onSubmit={registerRoom}>
+                        <Form.Group className="mb-3" controlId="newRoleName">
+                            <Form.Label>Room Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={roomName}
+                                required
+                                onChange={(e) => setRoomName(e.target.value)}
+                            />
+                            {roomError}
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="desc">
+                            <Form.Label>Description</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={description}
+                                required
+                                onChange={(e) => setDescription(e.target.value)}
+                            />
+                            {roomError}
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="newRoomtype">
+                            <Form.Label>Room Type</Form.Label>
+                            <Form.Control as="select"
+                                value={roomType}
+                                onChange={(e) => setRoomType(e.target.value)}>
+                                <option value="Spa">Spa</option>
+                                <option value="MassageRoom">Massage Room</option>
+                                <option value="HairSalon">Hair Salon</option>
+                            </Form.Control>
+                        </Form.Group>
+                        <Button type="submit">Register Room</Button>
+                    </Form>
+                </div>
+                <div>
+                    <Table>
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Roomname</th>
+                                <th>Roomtype</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        {roomList}
+                    </Table>
+                    <Button variant="primary" onClick={getRooms}>Show All Rooms</Button>
+                </div>
+                </Col>
+                </Row>
+            </Container>
         </div>
     );
 
     async function registerUser(e) {
-        e.preventDefault();
-
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            mode: 'cors',
-            body: JSON.stringify({ email: email, firstname: firstName, lastname: lastName, phone: phone, password: password })
-        };
-
-        let response = await fetch('http://localhost:4000/users/register', requestOptions);
-        const data = await response.json();
-
-        if (response.status === 200) {
-            window.location.reload();
+        if (phone !== "" && !/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im.test(phone)) {
+            setPhoneError("Invalid phone number format!");
+            e.stopPropagation();
+            e.preventDefault();
         }
+
         else {
-            // validerings fel
+            e.preventDefault();
+            setPhoneError("");
+
+            console.log(role)
+
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                mode: 'cors',
+                body: JSON.stringify({ email: email, firstname: firstName, lastname: lastName, phone: phone, "role": role,
+                                     workexperience: workExperience, password: password })
+            };
+
+            let response = await fetch('http://localhost:4000/users/register', requestOptions);
+            const data = await response.json();
+
+            if (response.status === 200) {
+                setEmailError("");
+                setPhoneError("");
+                window.alert("Registration successfull!");
+                getUsers();
+            }
+
+            else if (response.status === 400) {
+                setEmailError("");
+                setPhoneError("");
+
+                if (data === 'Email is already in use!')
+                    setEmailError(data.message);
+                else
+                    setPhoneError(data.message);
+            }
         }
     }
 
     async function getUsers() {
+
         const requestOptions = {
             method: 'GET',
             headers: { 'Content-Type': 'application/json', 'Authorization': parsedUser.token },
             mode: 'cors'
         };
 
-        let response = await fetch("http://localhost:4000/admins/get/all/", requestOptions);
+        let response = await fetch("http://localhost:4000/users/allusers", requestOptions);
         let data = await response.json();
 
-        if (!userList) {
-            setUserList(data.map((user) =>
-                <li key={user.id}>
-                    <div>Id: {user.id}</div>
-                    <div>Email: {user.email}</div>
-                    <div>Firstname: {user.firstname}</div>
-                    <div>Lastname: {user.lastname}</div>
-                    <div>Phone: {user.phone}</div>
-                    <div>Role: {user.role}</div>
-                    <button onClick={() => deleteUser(user.id)}>Delete User</button>
-                </li>
-            ))
-        }
-        else {
-            setUserList(null);
-        }
+        setUserList(data.map((user) =>
+            <tbody key={user.id}>
+                <tr>
+                    <td>{user.id}</td>
+                    <td>{user.email}</td>
+                    <td>{user.firstname}</td>
+                    <td>{user.lastname}</td>
+                    <td>{user.phone}</td>
+                    <td>{user.role}</td>
+                    <td>{user.workexperience}</td>
+                    <td>
+                        <Button variant="danger" onClick={() => deleteUser(user.id)}>Delete User</Button>
+                    </td>
+                    <td>
+                        <Button variant="primary" onClick={() => startUpdate(user.id)}>
+                            Edit User
+                        </Button>
+                    </td>
+                </tr>
+            </tbody>));
+    }
+
+    function startUpdate(userId) {
+        setUpdateUserId(userId);
+        handleShow();
     }
 
     async function deleteUser(id) {
@@ -193,40 +391,70 @@ function Admin() {
             mode: 'cors'
         };
 
-        let response = await fetch("http://localhost:4000/admins/delete/" + id, requestOptions);
-
-        if (response.status === 200) {
+        if (window.confirm("Are you sure you want to delete this user?")) {
+            await fetch("http://localhost:4000/users/" + id, requestOptions);
             window.alert("User deleted");
-        }
-        else {
+            getUsers();
         }
     }
 
-    async function updateUser() {
+    async function updateUser(e) {
 
-        let payload = {
-            "id": id,
-            "email": newEmail,
-            "phone": newPhone,
-            "password": newPassword,
-            "role": newRole
+        if (newPhone !== "" && !/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im.test(newPhone)) {
+            setNewPhoneError("Invalid phone number format!");
+            e.stopPropagation();
+            e.preventDefault();
         }
 
-        for (var key of Object.keys(payload)) {
-            if (!payload[key]) {
-                delete payload[key];
+        else {
+            e.preventDefault();
+            setNewPhoneError("");
+
+            let payload = {
+                "id": updateUserId,
+                "email": newEmail,
+                "firstname": newFirstName,
+                "lastname": newLastName,
+                "phone": newPhone,
+                "password": newPassword,
+                "role": newRole,
+                "newworkexperience": newWorkExperience
             }
-        };
 
-        const requestOptions = {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json', 'Authorization': parsedUser.token },
-            mode: 'cors',
-            body: JSON.stringify(payload)
-        };
+            for (var key of Object.keys(payload)) {
+                if (!payload[key]) {
+                    delete payload[key];
+                }
+            };
 
-        let response = await fetch('http://localhost:4000/users/update', requestOptions);
-        const data = await response.json();
+            const requestOptions = {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'Authorization': parsedUser.token },
+                mode: 'cors',
+                body: JSON.stringify(payload)
+            };
+
+            let response = await fetch('http://localhost:4000/users/update', requestOptions);
+            const data = await response.text();
+
+            if (response.status === 200) {
+                setNewEmailError("");
+                setNewPhoneError("");
+                handleClose();
+                window.alert("User update successfull!");
+                getUsers();
+            }
+
+            else if (response.status === 400) {
+                setNewEmailError("");
+                setNewPhoneError("");
+
+                if (data === 'Email is already in use!')
+                    setNewEmailError(data);
+                else
+                    setNewPhoneError(data);
+            }
+        }
     }
 
     async function getBookings() {
@@ -236,60 +464,60 @@ function Admin() {
             mode: 'cors'
         };
 
-        let response = await fetch("http://localhost:4000/admins/bookings/", requestOptions);
+        let response = await fetch("http://localhost:4000/bookings/allbookings/", requestOptions);
         let data = await response.json();
 
-        if (!bookingList) {
-            setBookingList(data.map((booking) =>
-                <li key={booking.id}>
-                    <div>Id: {booking.id}</div>
-                    <div>Customer: {booking.customerId}</div>
-                    <div>Worker: {booking.workerId}</div>
-                    <div>Room: {booking.roomId}</div>
-                    <div>Date: {booking.startTime} - {booking.endTime}</div>
-                    <button onClick={() => deleteBooking(booking.id)}>Delete Booking</button>
-                </li>))
-        }
-        else {
-            setBookingList(null);
-        }
+
+        setBookingList(data.map((booking) =>
+            <tbody key={booking.id}>
+                <tr>
+                <td>{booking.userId}</td>
+                    <td>{booking.roomName}</td>
+                    <td>{booking.workerName}</td>
+                    <td>{booking.startTime}</td>
+                    <td>{booking.endTime}</td>
+                    <td><Button variant="outline-danger" onClick={() => deleteBooking(booking.id)}>Delete Booking</Button></td>
+                </tr>
+            </tbody>));
     }
 
-    async function deleteBooking(id) {
+    function deleteBooking(bookingId) {
+
         const requestOptions = {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json', 'Authorization': parsedUser.token },
             mode: 'cors'
         };
 
-        let response = await fetch("http://localhost:4000/admins/bookings/" + id, requestOptions);
-
-        if (response.status === 200) {
-            window.alert('Booking deleted!');
+        if (window.confirm("Are you sure you want to cancel this booking?")) {
+            fetch("http://localhost:4000/bookings/booking/" + bookingId, requestOptions);
+            window.alert("Booking canceled!");
             getBookings();
-        }
-
-        else {
         }
     }
 
-    async function registerRoom() {
+    async function registerRoom(e) {
+        e.preventDefault();
+
+        setRoomError("");
 
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': parsedUser.token },
             mode: 'cors',
-            body: JSON.stringify({ RoomName: roomName, RoomType: roomType })
+            body: JSON.stringify({ RoomName: roomName, description: description, RoomType: roomType })
         };
 
-        let response = await fetch('http://localhost:4000/admins/rooms/register', requestOptions);
+        let response = await fetch('http://localhost:4000/bookings/room', requestOptions);
         const data = await response.json();
 
         if (response.status === 200) {
-            // validerings OK
+            setRoomError("");
+            getRooms();
         }
-        else {
-            // validerings fel
+        else if (response.status === 400) {
+            console.log(data.message);
+            setRoomError(data.message);
         }
     }
 
@@ -301,21 +529,19 @@ function Admin() {
             mode: 'cors'
         };
 
-        let response = await fetch("http://localhost:4000/admins/rooms/get/", requestOptions);
+        let response = await fetch("http://localhost:4000/bookings/rooms/", requestOptions);
         let data = await response.json();
 
-        if (!roomList) {
-            setRoomList([data.map((room) =>
-                <li key={room.id}>
-                    <div>Id: {room.id}</div>
-                    <div>Room name: {room.roomName}</div>
-                    <div>Room type: {room.roomType}</div>
-                    <button onClick={() => deleteRoom(room.id)}>Delete</button>
-                </li>)])
-        }
-        else {
-            setRoomList(null);
-        }
+        setRoomList([data.map((room) =>
+            <tbody key={room.id}>
+                <tr>
+                    <td>{room.id}</td>
+                    <td>{room.roomName}</td>
+                    <td>{room.roomType}</td>
+                    <td>{room.description}</td>
+                    <td><Button variant="outline-danger" onClick={() => deleteRoom(room.id)}>Delete Room</Button></td>
+                </tr>
+            </tbody>)])
     }
 
     async function deleteRoom(id) {
@@ -325,15 +551,13 @@ function Admin() {
             mode: 'cors'
         };
 
-        let response = await fetch("http://localhost:4000/admins/rooms/" + id, requestOptions);
+        let response = await fetch("http://localhost:4000/bookings/room/" + id, requestOptions);
 
         if (response.status === 200) {
             window.alert('Room deleted!');
             getRooms();
         }
-
-        else {
-        }
     }
 }
+
 export default Admin;

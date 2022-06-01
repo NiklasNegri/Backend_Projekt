@@ -10,16 +10,11 @@ namespace WebApi.Services
     public interface IUserService
     {
         AuthenticateResponse Authenticate(AuthenticateRequest model);
-        void RegisterCustomer(RegisterUser model);
+        void RegisterUser(RegisterUser model);
+        IEnumerable<User> GetUsers();
         User GetById(int id);
-        void DeleteUser(int id, int userId);
-        void UpdateUser(UpdateUser model);
-        void CreateBooking(RegisterBooking model);
-        IEnumerable<Booking> GetUserBookings(int id);
-        Booking GetBookingById(int id);
-        void DeleteBooking(Booking booking, int id);
-        IEnumerable<Room> GetRooms();
-        IEnumerable<User> GetWorkers();
+        void UpdateUser(UpdateUser model, int authenticatedUserId);
+        void DeleteUser(int id);
     }
 
     public class UserService : IUserService
@@ -41,6 +36,11 @@ namespace WebApi.Services
         public AuthenticateResponse Authenticate(AuthenticateRequest model)
         {
             var user = _context.Users.SingleOrDefault(x => x.Email == model.Email);
+            if (user == null)
+                throw new KeyNotFoundException($"{model.Email} is not registered to any account!");
+
+            if (!BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
+                throw new KeyNotFoundException("Wrong password entered!");
 
             // authentication successful so generate jwt token
             var response = _mapper.Map<AuthenticateResponse>(user);
@@ -48,39 +48,57 @@ namespace WebApi.Services
             return response;
         }
 
-        public void RegisterCustomer(RegisterUser model)
+        public void RegisterUser(RegisterUser model)
         {
-            if (_context.Users.Any(x => x.Email == model.Email))
-                throw new AppException("User with this email is already registered!");
+            var emailCheck = _context.Users.Any(x => x.Email == model.Email);
+            if (emailCheck)
+                throw new AppException("Email is already in use!");
 
-            if (_context.Users.Any(x => x.Phone == model.Phone))
-                throw new AppException("User with this phone number is already registered!");
+            var phoneCheck = _context.Users.Any(x => x.Phone == model.Phone);
+            if (phoneCheck)
+                throw new AppException("Phone is already in use!");
 
             var user = _mapper.Map<User>(model);
+
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
-            user.Role = Role.Customer;
+
+            if (model.Role == null)
+                user.Role = Role.Customer;
+
+            if (model.Role != Role.Worker)
+                model.WorkExperience = null;
 
             _context.Users.Add(user);
             _context.SaveChanges();
         }
 
+        public IEnumerable<User> GetUsers()
+        {
+            return _context.Users;
+        }
+
         public User GetById(int id)
         {
-            return GetUser(id);
+            var user = _context.Users.Find(id);
+            if (user == null)
+                throw new KeyNotFoundException("User not found!");
+            return user;
         }
 
-        public void DeleteUser(int id, int userId)
+        public void UpdateUser(UpdateUser model, int authenticatedUserId)
         {
-            if (id != userId)
-                throw new AppException("Cannot delete another user!");
-            var user = GetUser(id);
-            _context.Users.Remove(user);
-            _context.SaveChanges();
-        }
+            /* if (model.Id != authenticatedId)
+                throw new AppException("Cannot update another user!"); */
 
-        public void UpdateUser(UpdateUser model)
-        {
-            var user = GetUser(model.Id);
+            var emailCheck = _context.Users.Any(x => x.Email == model.Email);
+            if (emailCheck)
+                throw new AppException("Email is already in use!");
+
+            var phoneCheck = _context.Users.Any(x => x.Phone == model.Phone);
+            if (phoneCheck)
+                throw new AppException("Phone is already in use!");
+
+            var user = GetById(model.Id);
 
             if (model.Email == null)
                 model.Email = user.Email;
@@ -94,10 +112,12 @@ namespace WebApi.Services
             if (model.Phone == null)
                 model.Phone = user.Phone;
 
-            if (model.Password == null) {
+            if (model.Password == null)
+            {
                 model.Password = user.PasswordHash;
             }
-            else {
+            else
+            {
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
             }
 
@@ -106,87 +126,11 @@ namespace WebApi.Services
             _context.SaveChanges();
         }
 
-        public void CreateBooking(RegisterBooking model)
+        public void DeleteUser(int id)
         {
-            var worker = _context.Users.FirstOrDefault(x => x.Id == model.WorkerId);
-            if (worker == null || worker.Role != Role.Worker)
-                throw new AppException("Cannot find a worker with this id");
-
-            var customer = _context.Users.FirstOrDefault(x => x.Id == model.CustomerId);
-            if (customer == null || customer.Role != Role.Customer && customer.Id != model.CustomerId)
-                throw new AppException("Cannot find a customer with this id");
-
-            var room = _context.Rooms.FirstOrDefault(x => x.Id == model.RoomId);
-            if (room == null)
-                throw new AppException("Room id does not exist!");
-
-            var workerBooked = _context.Bookings.FirstOrDefault(
-                x => (x.StartTime == DateTime.Parse(model.StartTime) && x.WorkerId == model.WorkerId));
-            if (workerBooked != null)
-                throw new AppException("Worker is already scheduled to work at that time!");
-
-            var customerBooked = _context.Bookings.FirstOrDefault(
-                x => (x.StartTime == DateTime.Parse(model.StartTime) && x.CustomerId == model.CustomerId));
-            if (customerBooked != null)
-                throw new AppException("Customer is already booked at that time!");
-
-            var roomedBooked = _context.Bookings.FirstOrDefault(
-                x => (x.StartTime == DateTime.Parse(model.StartTime) && x.RoomId == model.RoomId));
-            if (roomedBooked != null)
-                throw new AppException("Room is already booked at that time!");
-
-            var booking = _mapper.Map<Booking>(model);
-            booking.RoomName = room.RoomName;
-            booking.WorkerName = worker.Firstname + ' ' + worker.Lastname;
-            booking.StartTime = DateTime.Parse(model.StartTime);
-            booking.EndTime = DateTime.Parse(model.StartTime).AddMinutes(Convert.ToDouble(model.Duration));
-
-            _context.Bookings.Add(booking);
+            var user = GetById(id);
+            _context.Users.Remove(user);
             _context.SaveChanges();
-        }
-
-        public Booking GetBookingById(int id)
-        {
-            var booking = _context.Bookings.Find(id);
-            if (booking == null)
-                throw new AppException("Booking with that id does not exist!");
-            return booking;
-        }
-
-        public IEnumerable<Booking> GetUserBookings(int id)
-        {
-            var bookings = _context.Bookings.Where(x => x.CustomerId == id || x.WorkerId == id);
-            if (bookings == null)
-                throw new KeyNotFoundException("No bookings found!");
-            return bookings;
-        }
-
-        public void DeleteBooking(Booking booking, int id)
-        {
-            if (booking == null || booking.CustomerId != id || booking.WorkerId != id)
-                throw new KeyNotFoundException("No bookings found!");
-            _context.Bookings.Remove(booking);
-            _context.SaveChanges();
-        }
-
-        public IEnumerable<Room> GetRooms()
-        {
-            return _context.Rooms;
-        }
-
-        public IEnumerable<User> GetWorkers()
-        {
-            var workers = _context.Users.Where(x => (int)x.Role == 2);
-            return workers;
-        }
-
-        private User GetUser(int id)
-        {
-            var user = _context.Users.Find(id);
-            if (user == null)
-                throw new KeyNotFoundException("User not found!");
-
-            return user;
         }
     }
 }

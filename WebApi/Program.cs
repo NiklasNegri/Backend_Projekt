@@ -26,15 +26,13 @@ var builder = WebApplication.CreateBuilder(args);
 
     // configure DI for application services
     services.AddScoped<IJwtUtils, JwtUtils>();
+    services.AddScoped<IBookingService, BookingService>();
     services.AddScoped<IUserService, UserService>();
-    services.AddScoped<IAdminService, AdminService>();
 }
 
 var app = builder.Build();
 
-// configure HTTP request pipeline
 {
-    // global cors policy
     app.UseCors(x => x
         .AllowAnyOrigin()
         .AllowAnyMethod()

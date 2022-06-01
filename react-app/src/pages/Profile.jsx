@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, Col, Row, Container, Button, Modal, Alert } from 'react-bootstrap';
+import { Form, Container, Button, Modal, Row, Col } from 'react-bootstrap';
 
 
 function Profile() {
@@ -15,6 +15,9 @@ function Profile() {
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
 
+    const [emailError, setEmailError] = useState("");
+    const [phoneError, setPhoneError] = useState("");
+
     const [show, setShow] = useState(false);
 
     const handleClose = () => setShow(false);
@@ -22,43 +25,20 @@ function Profile() {
 
     return (
         <Container>
+            <Row className="justify-content-md-center">
+                <Col md="auto">
             <Form>
-                <Form.Label>
-                    User Profile
-                </Form.Label>
-                <Form.Group as={Row} className="mb-3" controlId="userEmail">
-                    <Form.Label column="sm-2">
-                        Email
-                    </Form.Label>
-                    <Col sm="10">
-                        <Form.Control plaintext defaultValue={parsedUser.email} />
-                    </Col>
-                </Form.Group>
-                <Form.Group as={Row} className="mb-3" controlId="userFirstname">
-                    <Form.Label column="sm-2">
-                        Firstname
-                    </Form.Label>
-                    <Col sm="10">
-                        <Form.Control plaintext readOnly defaultValue={parsedUser.firstname} />
-                    </Col>
-                </Form.Group><Form.Group as={Row} className="mb-3" controlId="userLastname">
-                    <Form.Label column="sm-2">
-                        Lastname
-                    </Form.Label>
-                    <Col sm="10">
-                        <Form.Control plaintext readOnly defaultValue={parsedUser.lastname} />
-                    </Col>
-                </Form.Group><Form.Group as={Row} className="mb-3" controlId="userPhone">
-                    <Form.Label column="sm-2">
-                        Phone number
-                    </Form.Label>
-                    <Col sm="10">
-                        <Form.Control plaintext readOnly defaultValue={parsedUser.phone} />
-                    </Col>
-                </Form.Group>
+                <h3>User Profile</h3>
+                <p>Name: {parsedUser.firstname} {parsedUser.lastname}</p>
+                <p>Email: {parsedUser.email}</p>
+                <p>Phone: {parsedUser.phone}</p>
+
             </Form>
             <Button variant="primary" onClick={handleShow}>
                 Edit user profile
+            </Button>
+            <Button variant="danger" onClick={deleteUser}>
+                Delete account
             </Button>
 
             <Modal show={show} onHide={handleClose}>
@@ -74,6 +54,7 @@ function Profile() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                             />
+                            {emailError}
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="newFirstname">
@@ -95,16 +76,17 @@ function Profile() {
                         </Form.Group><Form.Group className="mb-3" controlId="newPhone">
                             <Form.Label>New Phone</Form.Label>
                             <Form.Control
-                                type="text"
+                                type="phone"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
                             />
+                            {phoneError}
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="newPassword">
-                            <Form.Label>New password</Form.Label>
+                            <Form.Label>New Password</Form.Label>
                             <Form.Control
-                                type="text"
+                                type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
@@ -120,34 +102,36 @@ function Profile() {
                     </Button>
                 </Modal.Footer>
             </Modal>
+            </Col>
+            </Row>
         </Container>
     );
 
-    async function deleteUser(e) {
-        e.preventDefault();
+    async function deleteUser() {
 
         const requestOptions = {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json', 'Authorization': parsedUser.token },
-            mode: 'cors',
-            body: JSON.stringify({ "id": parsedUser.id })
+            mode: 'cors'
         };
-
+        let link = "http://localhost:4000/users/" + parsedUser.Id;
         if (window.confirm('Are you sure you want to delete your account?')) {
-            await fetch('http://localhost:4000/users/' + parsedUser.id, requestOptions);
+            await fetch(link, requestOptions);
             window.alert('User deleted');
-            localStorage.clear();
-            navigate("/login");
-            window.location.reload();
-        }
-        else {
-
+            
         }
     }
 
     async function updateUser(e) {
 
-        e.preventDefault();
+        if (phone != "") {
+
+            if (!/[0-9]/.test(phone)) {
+
+                setPhoneError("Phone number must be only digits!");
+                e.preventDefault();
+            }
+        }
 
         let payload = {
             "id": parsedUser.id,
@@ -173,9 +157,27 @@ function Profile() {
         };
 
         let response = await fetch('http://localhost:4000/users/update', requestOptions);
-        handleClose();
-        localStorage.clear();
-        window.location.reload();
+        const data = await response.text();
+
+        if (response.status === 200) {
+            setEmailError("");
+            setPhoneError("");
+            handleClose();
+            window.alert("Profile update successfull!");
+            localStorage.clear();
+            window.location.reload();
+            navigate('/login');
+        }
+
+        else if (response.status === 400) {
+            setEmailError("");
+            setPhoneError("");
+
+            if (data === 'Email is already in use!')
+                setEmailError(data);
+            else
+                setPhoneError(data);
+        }
     }
 }
 

@@ -9,59 +9,45 @@ function NavbarLoggedIn() {
   const user = localStorage.getItem("user");
   const parsedUser = JSON.parse(user);
 
-  const [navbar, setNavbar] = useState([]);
+  const [navbar, setNavbar] = useState("");
 
   useEffect(() => {
     determineRole();
   }, []);
 
   return (
-    <div>
-    { navbar }
-    </div>
-  );
+    <Navbar bg="light" expand="lg">
+      <Container>
+        <Navbar.Brand>Schemabokare</Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          {navbar}
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>);
 
   function determineRole() {
     if (parsedUser.role === "Admin") {
-      setNavbar([
-        <div>
-        <Navbar bg="light" expand="lg">
-          <Container>
-            <Navbar.Brand>Schemabokare</Navbar.Brand>
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
-            <Navbar.Collapse id="basic-navbar-nav">
-              <Nav className="me-auto">
-                <Nav.Link as={Link} to="home">Home</Nav.Link>
-                <Nav.Link as={Link} to="admin">Admin</Nav.Link>
-                <Nav.Link as={Link} to="profile">Profile</Nav.Link>
-                <Nav.Link as={Link} to="home" onClick={logout}>Logout</Nav.Link>
-              </Nav>
-            </Navbar.Collapse>
-          </Container>
-        </Navbar>
-        </div>
-      ])
+      setNavbar(
+        <Nav className="me-auto">
+          <Nav.Link as={Link} to="home">Home</Nav.Link>
+          <Nav.Link as={Link} to="admin">Admin</Nav.Link>
+          <Nav.Link as={Link} to="profile">Profile</Nav.Link>
+          <Nav.Link as={Link} to="home" onClick={logout}>Logout</Nav.Link>
+        </Nav>
+
+      )
     }
 
     else {
-      setNavbar([
-        <div>
-        <Navbar bg="light" expand="lg">
-          <Container>
-            <Navbar.Brand>Schemabokare</Navbar.Brand>
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
-            <Navbar.Collapse id="basic-navbar-nav">
-              <Nav className="me-auto">
-                <Nav.Link as={Link} to="home">Home</Nav.Link>
-                <Nav.Link as={Link} to="createbooking">Create Booking</Nav.Link>
-                <Nav.Link as={Link} to="bookinghistory">Booking History</Nav.Link>
-                <Nav.Link as={Link} to="profile">Profile</Nav.Link>
-                <Nav.Link as={Link} to="home" onClick={logout}>Logout</Nav.Link>
-              </Nav>
-            </Navbar.Collapse>
-          </Container>
-        </Navbar>
-        </div>])
+      setNavbar(
+        <Nav className="me-auto">
+          <Nav.Link as={Link} to="home">Home</Nav.Link>
+          <Nav.Link as={Link} to="createbooking">Create Booking</Nav.Link>
+          <Nav.Link as={Link} to="bookinghistory">Booking History</Nav.Link>
+          <Nav.Link as={Link} to="profile">Profile</Nav.Link>
+          <Nav.Link as={Link} to="home" onClick={logout}>Logout</Nav.Link>
+        </Nav>)
     }
   }
 

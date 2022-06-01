@@ -1,7 +1,8 @@
 import { createRoot } from 'react-dom/client';
 import { Navigate } from 'react-router-dom';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import 'bootstrap/dist/css/bootstrap.min.css';
+
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 import Layout from "./pages/Layout";
 import Register from "./pages/Register";
@@ -76,11 +77,13 @@ function RequireLogout({ children }) {
 
 function isLoggedIn() {
   const user = localStorage.getItem("user");
+  const parsedUser = JSON.parse(user);
 
-  if (user) {
+  if (parsedUser) {
     return true;
   }
-  else {
+  else if (parsedUser == null) {
+    localStorage.clear();
     return false;
   }
 }

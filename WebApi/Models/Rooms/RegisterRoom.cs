@@ -9,5 +9,8 @@ public class RegisterRoom
     public string RoomName { get; set; }
     
     [Required]
+    public string Description { get; set; }
+    
+    [Required]
     public RoomType RoomType { get; set; }    
 }
